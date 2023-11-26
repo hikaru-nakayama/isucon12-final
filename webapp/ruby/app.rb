@@ -123,7 +123,7 @@ module Isuconquest
         login_bonuses = obtain_login_bonus(user_id, request_at)
 
         # 全員プレゼント取得
-        all_presents = obtain_present(user_id, request_at)
+        all_presents = new_obtain_present(user_id, request_at)
 
         unless db.xquery('SELECT isu_coin FROM users WHERE id=?', user.id).first
           raise HttpError.new(404, 'not found user')
@@ -208,6 +208,64 @@ module Isuconquest
         end
 
         send_login_bonuses
+      end
+
+      def new_obtain_present(user_id, request_at)
+        normal_presents = db.xquery('SELECT * FROM present_all_masters WHERE registered_start_at <= ? AND registered_end_at >= ?', request_at, request_at)
+        obtain_presents = []
+        place_holder = normal_presents.map { '?' }.join(',')
+        query = "SELECT * FROM user_present_all_received_history WHERE user_id=? AND present_all_id IN (#{place_holder})"
+        user_present_all_received_histories = db.xquery(query, user_id, normal_presents.map {|n| n[:id]})
+        user_present_all_received_histories_hash = user_present_all_received_histories.each_with_object({}) do |record, hash|
+          hash[record[:present_all_id]] = record
+        end
+        user_presents = normal_presents.each_with_object([]) do |normal_present_, array|
+          normal_present = PresentAllMaster.new(normal_present_)
+  
+          next if user_present_all_received_histories_hash[normal_present.id] # プレゼント配布済
+  
+          # user present boxに入れる
+          user_present_id = generate_id()
+          user_present = UserPresent.new(
+            id: user_present_id,
+            user_id: user_id,
+            sent_at: request_at,
+            item_type: normal_present.item_type,
+            item_id: normal_present.item_id,
+            amount: normal_present.amount,
+            present_message: normal_present.present_message,
+            created_at: request_at,
+            updated_at: request_at,
+          )
+          array << user_present
+        end
+        sql = user_presents.map do |u|
+          "(#{u.id}, #{u.user_id}, #{u.sent_at}, #{u.item_type}, #{u.item_id}, #{u.amount}, '#{u.present_message}', #{u.created_at}, #{u.updated_at})"
+        end.join(', ')
+
+        if sql != ''
+          db.xquery("INSERT INTO user_presents(id, user_id, sent_at, item_type, item_id, amount, present_message, created_at, updated_at) VALUES #{sql}")
+        end
+
+        histories = normal_presents.map do |normal_present_|
+          # historyに入れる
+          present_history_id = generate_id()
+          UserPresentAllReceivedHistory.new(
+            id: present_history_id,
+            user_id: user_id,
+            present_all_id: normal_present_[:id],
+            received_at: request_at,
+            created_at: request_at,
+            updated_at: request_at,
+          )
+        end
+        sql = histories.map do |h|
+          "(#{h.id}, #{h.user_id}, #{h.present_all_id}, #{h.received_at}, #{h.created_at}, #{h.updated_at})"
+        end.join(', ')
+        if sql != ''
+          db.xquery("INSERT INTO user_present_all_received_history(id, user_id, present_all_id, received_at, created_at, updated_at) VALUES #{sql}")
+        end
+        user_presents
       end
 
       # プレゼント付与処理
