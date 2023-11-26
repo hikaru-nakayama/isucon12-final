@@ -1,4 +1,4 @@
-bench: mysql-slow.rotate
+bench: mysql-slow.rotate nginx.rotate
 	~/bin/benchmarker --stage=prod --request-timeout=10s --initialize-request-timeout=60s
 
 nginx.rotate:
