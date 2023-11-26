@@ -30,6 +30,12 @@ mysql-slow.digest:
 service.status:
 	sudo systemctl status isuconquest.ruby.service
 
+mysql.status:
+	sudo systemctl status mysql.service
+
+nginx.stauts:
+	sudo systemctl status nginx.service
+
 service.restart:
 	sudo systemctl restart isuconquest.ruby.service
 
@@ -41,6 +47,8 @@ mysql.sh:
 
 deploy1:
 	scp -r ./webapp/ruby isucon:~/webapp
+	scp -r ./webapp/sql/init.sh isucon:~/webapp/sql
+	scp -r ./webapp/sql/add_index.sql isucon:~/webapp/sql
 	scp -r ./etc/mysql/mysqld.cnf isucon:/etc/mysql/mysql.conf.d
 	scp -r ./etc/nginx/nginx.conf isucon:/etc/nginx
 	scp -r ./Makefile isucon:~/Makefile

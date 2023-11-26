@@ -1,0 +1,1 @@
+ALTER TABLE user_present_all_received_history ADD INDEX present_all_idx(user_id, present_all_id);
