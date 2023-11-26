@@ -41,8 +41,7 @@ mysql.sh:
 
 deploy1:
 	scp -r ./webapp/ruby isucon:~/webapp
-	scp -r ./etc/mysql/mysql.conf.d/mysqld.cnf isucon:/etc/mysql/mysql.conf.d
-	scp -r ./etc/nginx/isupipe.conf isucon:/etc/nginx/sites-enabled
+	scp -r ./etc/mysql/mysqld.cnf isucon:/etc/mysql/mysql.conf.d
 	scp -r ./etc/nginx/nginx.conf isucon:/etc/nginx
 	scp -r ./Makefile isucon:~/Makefile
 	ssh isucon "sudo systemctl restart mysql"
