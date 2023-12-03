@@ -46,16 +46,16 @@ mysql.sh:
 	sudo mysql -uroot isucon
 
 deploy1:
-	scp -r ./webapp/ruby isucon:~/webapp
-	scp -r ./webapp/sql/init.sh isucon:~/webapp/sql
-	scp -r ./webapp/sql/add_index.sql isucon:~/webapp/sql
-	scp -r ./etc/mysql/mysqld.cnf isucon:/etc/mysql/mysql.conf.d
-	scp -r ./etc/nginx/nginx.conf isucon:/etc/nginx
-	scp -r ./Makefile isucon:~/Makefile
-	ssh isucon "sudo systemctl restart mysql"
-	ssh isucon "sudo systemctl restart nginx.service"
-	ssh isucon "sudo systemctl daemon-reload"
-	ssh isucon "sudo systemctl restart isuconquest.ruby.service"
+	scp -r ./webapp/ruby hikaru-isucon:~/webapp
+	scp -r ./webapp/sql/init.sh hikaru-isucon:~/webapp/sql
+	scp -r ./webapp/sql/add_index.sql hikaru-isucon:~/webapp/sql
+	scp -r ./etc/mysql/mysqld.cnf hikaru-isucon:/etc/mysql/mysql.conf.d
+	scp -r ./etc/nginx/nginx.conf hikaru-isucon:/etc/nginx
+	scp -r ./Makefile hikaru-isucon:~/Makefile
+	ssh hikaru-isucon "sudo systemctl restart mysql"
+	ssh hikaru-isucon "sudo systemctl restart nginx.service"
+	ssh hikaru-isucon "sudo systemctl daemon-reload"
+	ssh hikaru-isucon "sudo systemctl restart isuconquest.ruby.service"
 
 edit:
 	vim ./webapp/ruby/app.rb
